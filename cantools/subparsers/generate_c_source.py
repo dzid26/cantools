@@ -29,7 +29,8 @@ def _do_generate_c_source(args):
         filename_c,
         fuzzer_filename_c,
         not args.no_floating_point_numbers,
-        args.bit_fields)
+        args.bit_fields,
+        args.node)
 
     with open(filename_h, 'w') as fout:
         fout.write(header)
@@ -84,4 +85,7 @@ def add_subparser(subparsers):
     generate_c_source_parser.add_argument(
         'infile',
         help='Input database file.')
+    generate_c_source_parser.add_argument(
+        '--node',
+        help='Generate pack functions for messages sent from given node, and unpack functions for other messages.')
     generate_c_source_parser.set_defaults(func=_do_generate_c_source)

@@ -222,7 +222,7 @@ file names are also changed by this option.
 See `my_database_name.h`_ and `my_database_name.c`_ for the contents
 of the generated files.
 
-In the last example we use ``--no-floating-point-numbers`` to generate
+In the next example we use ``--no-floating-point-numbers`` to generate
 code without floating point types, i.e. ``float`` and ``double``.
 
 .. code-block:: text
@@ -232,6 +232,19 @@ code without floating point types, i.e. ``float`` and ``double``.
 
 See `motohawk_no_floating_point_numbers.h`_ and
 `motohawk_no_floating_point_numbers.c`_ for the contents of the
+generated files.
+
+In the last example ``--node`` was used to generate
+message pack functions only for messages from a sending node and message unpack
+functions for messages from all other nodes  
+
+.. code-block:: text
+
+   $ cantools generate_c_source tests/files/dbc/motohawk.dbc --node PCM1
+   Successfully generated motohawk.h and motohawk.c.
+
+See `motohawk_sender.h`_ and
+`motohawk_sender.c`_ for the contents of the
 generated files.
 
 Other C code generators:
