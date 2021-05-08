@@ -1353,26 +1353,29 @@ def _generate_structs(database_name, messages, bit_fields):
 def _is_sender(message, node_name):
     return node_name is None or node_name in message.senders
 
-def _is_receiver(message, node_name):
-    return node_name is None or node_name not in message.senders
+def _is_receiver(signal, node_name):
+    return node_name is None or node_name in signal.receivers
 
 def _generate_declarations(database_name, messages, floating_point_numbers, node_name):
     declarations = []
 
     for message in messages:
         signal_declarations = []
+        is_sender = _is_sender(message, node_name)
+        is_receiver = node_name is None
 
         for signal in message.signals:
             signal_declaration = ''
-
+            
             if floating_point_numbers:
-                if _is_sender(message, node_name):
+                if is_sender:
                     signal_declaration += SIGNAL_DECLARATION_ENCODE_FMT.format(
                         database_name=database_name,
                         message_name=message.snake_name,
                         signal_name=signal.snake_name,
                         type_name=signal.type_name)
-                if _is_receiver(message, node_name):
+                if is_receiver or _is_receiver(signal, node_name):
+                    is_receiver = True
                     signal_declaration += SIGNAL_DECLARATION_DECODE_FMT.format(
                         database_name=database_name,
                         message_name=message.snake_name,
@@ -1387,11 +1390,11 @@ def _generate_declarations(database_name, messages, floating_point_numbers, node
 
             signal_declarations.append(signal_declaration)
         declaration = ""
-        if _is_sender(message, node_name):
+        if is_sender:
             declaration += DECLARATION_PACK_FMT.format(database_name=database_name,
                                                        database_message_name=message.name,
                                                        message_name=message.snake_name)
-        if _is_receiver(message, node_name):
+        if is_receiver:
             declaration += DECLARATION_UNPACK_FMT.format(database_name=database_name,
                                                          database_message_name=message.name,
                                                          message_name=message.snake_name)
@@ -1411,6 +1414,8 @@ def _generate_definitions(database_name, messages, floating_point_numbers, node_
 
     for message in messages:
         signal_definitions = []
+        is_sender = _is_sender(message, node_name)
+        is_receiver = node_name is None
 
         for signal, (encode, decode), check in zip(message.signals,
                                                    _generate_encode_decode(message),
@@ -1423,14 +1428,15 @@ def _generate_definitions(database_name, messages, floating_point_numbers, node_
             signal_definition = ''
 
             if floating_point_numbers:
-                if _is_sender(message, node_name):
+                if is_sender:
                     signal_definition += SIGNAL_DEFINITION_ENCODE_FMT.format(
                         database_name=database_name,
                         message_name=message.snake_name,
                         signal_name=signal.snake_name,
                         type_name=signal.type_name,
                         encode=encode)
-                if _is_receiver(message, node_name):
+                if is_receiver or _is_receiver(signal, node_name):
+                    is_receiver = True
                     signal_definition += SIGNAL_DEFINITION_DECODE_FMT.format(
                         database_name=database_name,
                         message_name=message.snake_name,
@@ -1464,7 +1470,7 @@ def _generate_definitions(database_name, messages, floating_point_numbers, node_
                 unpack_unused += '    (void)src_p;\n\n'
 
             definition = ""
-            if _is_sender(message, node_name):
+            if is_sender:
                 definition += DEFINITION_PACK_FMT.format(database_name=database_name,
                                                          database_message_name=message.name,
                                                          message_name=message.snake_name,
@@ -1472,7 +1478,7 @@ def _generate_definitions(database_name, messages, floating_point_numbers, node_
                                                          pack_unused=pack_unused,
                                                          pack_variables=pack_variables,
                                                          pack_body=pack_body)
-            if _is_receiver(message, node_name):
+            if is_receiver:
                 definition += DEFINITION_UNPACK_FMT.format(database_name=database_name,
                                                            database_message_name=message.name,
                                                            message_name=message.snake_name,

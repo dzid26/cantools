@@ -103,6 +103,19 @@ int motohawk_example_message_pack(
     const struct motohawk_example_message_t *src_p,
     size_t size);
 
+/**
+ * Unpack message ExampleMessage.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int motohawk_example_message_unpack(
+    struct motohawk_example_message_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -148,6 +161,15 @@ bool motohawk_example_message_average_radius_is_in_range(uint8_t value);
  * @return Encoded signal.
  */
 int16_t motohawk_example_message_temperature_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double motohawk_example_message_temperature_decode(int16_t value);
 
 /**
  * Check that given signal is in allowed range.

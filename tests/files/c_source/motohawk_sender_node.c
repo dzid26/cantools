@@ -103,6 +103,31 @@ int motohawk_example_message_pack(
     return (8);
 }
 
+int motohawk_example_message_unpack(
+    struct motohawk_example_message_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint16_t temperature;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    dst_p->enable = unpack_right_shift_u8(src_p[0], 7u, 0x80u);
+    dst_p->average_radius = unpack_right_shift_u8(src_p[0], 1u, 0x7eu);
+    temperature = unpack_left_shift_u16(src_p[0], 11u, 0x01u);
+    temperature |= unpack_left_shift_u16(src_p[1], 3u, 0xffu);
+    temperature |= unpack_right_shift_u16(src_p[2], 5u, 0xe0u);
+
+    if ((temperature & (1u << 11)) != 0u) {
+        temperature |= 0xf000u;
+    }
+
+    dst_p->temperature = (int16_t)temperature;
+
+    return (0);
+}
 
 uint8_t motohawk_example_message_enable_encode(double value)
 {
@@ -127,6 +152,11 @@ bool motohawk_example_message_average_radius_is_in_range(uint8_t value)
 int16_t motohawk_example_message_temperature_encode(double value)
 {
     return (int16_t)((value - 250.0) / 0.01);
+}
+
+double motohawk_example_message_temperature_decode(int16_t value)
+{
+    return (((double)value * 0.01) + 250.0);
 }
 
 bool motohawk_example_message_temperature_is_in_range(int16_t value)

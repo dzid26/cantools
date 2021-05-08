@@ -235,8 +235,8 @@ See `motohawk_no_floating_point_numbers.h`_ and
 generated files.
 
 In the last example ``--node`` was used to generate
-message pack functions only for messages from a sending node and message unpack
-functions for messages from all other nodes  
+message pack functions only for messages sent from the specified node and unpack
+functions only for messages with its signal receivers belonging to that node. 
 
 .. code-block:: text
 
